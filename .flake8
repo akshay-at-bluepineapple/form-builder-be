@@ -1,0 +1,6 @@
+[flake8]
+extend-ignore = E501, E203, DJ01, F841, F401, F541, W605, F403, E402, F811, E722, E712
+exclude =
+    .git,
+    __pycache__,
+    migrations
