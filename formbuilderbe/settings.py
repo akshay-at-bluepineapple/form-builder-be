@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "jsonformapp",
     "rest_framework",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
@@ -130,3 +131,20 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+SWAGGER_SETTINGS = {
+    "DEFAULT_INFO": "formbuilderbe.urls.schema_view",  # dotted path to your schema_view (optional)
+    "SECURITY_DEFINITIONS": {
+        "Basic": {"type": "basic"},
+        "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"},
+    },
+    "USE_SESSION_AUTH": True,  # Use Django session auth (default: True)
+    "JSON_EDITOR": True,  # Enable Swagger JSON editor UI (default: False)
+    "SHOW_REQUEST_HEADERS": True,  # Show request headers in Swagger UI (default: False)
+    "DOC_EXPANSION": "none",  # 'none' (default), 'list', or 'full'
+    "OPERATIONS_SORTER": "alpha",  # Sort operations alphabetically
+    "TAGS_SORTER": "alpha",  # Sort tags alphabetically
+    "DEFAULT_MODEL_RENDERING": "example",  # 'example' (default), 'model'
+    "VALIDATOR_URL": None,  # Disable external validator (default: 'http://validator.swagger.io/validator')
+}
