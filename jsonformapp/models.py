@@ -22,7 +22,7 @@ class Section(models.Model):
 
 class Row(models.Model):
     section = models.ForeignKey(Section, related_name="rows", on_delete=models.CASCADE)
-    row_name = models.CharField(max_length=255)
+    row_name = models.CharField(max_length=255, blank=True)
     row_order = models.IntegerField(default=None)
 
     def __str__(self):
@@ -31,7 +31,7 @@ class Row(models.Model):
 
 class Column(models.Model):
     row = models.ForeignKey(Row, related_name="columns", on_delete=models.CASCADE)
-    column_name = models.CharField(max_length=255)
+    column_name = models.CharField(max_length=255, blank=True)
     column_order = models.IntegerField(
         default=None, help_text="Column order in the row (1-2)"
     )
