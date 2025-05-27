@@ -11,21 +11,27 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-fzrhx0=_--9=ie-#&47ez7ebify)eu2ym9w_!_o(@rkc5j^eiq"
+SECRET_KEY = os.getenv("SECRET_KEY")
+# SECRET_KEY = "django-insecure-fzrhx0=_--9=ie-#&47ez7ebify)eu2ym9w_!_o(@rkc5j^eiq"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
 
 # Application definition
@@ -37,18 +43,32 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",
     "jsonformapp",
     "rest_framework",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
 ]
 
 ROOT_URLCONF = "formbuilderbe.urls"
@@ -74,19 +94,30 @@ WSGI_APPLICATION = "formbuilderbe.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+import dj_database_url
+
 DATABASES = {
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
+    # "default": {
+    #     "ENGINE": "django.db.backends.mysql",
+    #     "NAME": "formbuilder",
+    #     "USER": "root",
+    #     "PASSWORD": "root",
+    #     "HOST": "127.0.0.1",
+    #     "PORT": "3306",
+    # }
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "formbuilder",
-        "USER": "root",
-        "PASSWORD": "root",
-        "HOST": "127.0.0.1",
-        "PORT": "3306",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     }
+    # "default": dj_database_url.config(default=os.getenv("DATABASE_URL"))
 }
 
 
@@ -124,9 +155,28 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+SWAGGER_SETTINGS = {
+    "DEFAULT_INFO": "formbuilderbe.urls.schema_view",  # dotted path to your schema_view (optional)
+    "SECURITY_DEFINITIONS": {
+        "Basic": {"type": "basic"},
+        "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"},
+    },
+    "USE_SESSION_AUTH": True,  # Use Django session auth (default: True)
+    "JSON_EDITOR": True,  # Enable Swagger JSON editor UI (default: False)
+    "SHOW_REQUEST_HEADERS": True,  # Show request headers in Swagger UI (default: False)
+    "DOC_EXPANSION": "none",  # 'none' (default), 'list', or 'full'
+    "OPERATIONS_SORTER": "alpha",  # Sort operations alphabetically
+    "TAGS_SORTER": "alpha",  # Sort tags alphabetically
+    "DEFAULT_MODEL_RENDERING": "example",  # 'example' (default), 'model'
+    "VALIDATOR_URL": None,  # Disable external validator (default: 'http://validator.swagger.io/validator')
+}
