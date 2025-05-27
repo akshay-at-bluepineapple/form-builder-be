@@ -5,6 +5,7 @@ from django.db.models import JSONField
 class Form(models.Model):
     submit_api_route = models.URLField()
     form_name = models.CharField(max_length=255)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Form to {self.submit_api_route}"
