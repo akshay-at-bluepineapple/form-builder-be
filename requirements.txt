@@ -6,6 +6,7 @@ colorama==0.4.6
 distlib==0.3.9
 dj-database-url==2.3.0
 Django==5.2.1
+django-cors-headers==4.7.0
 django-rest-framework==0.1.0
 djangorestframework==3.16.0
 drf-yasg==1.21.10
