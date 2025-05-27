@@ -4,6 +4,7 @@ from .views import (
     FormListCreateUpdateView,
     GetTablesAPIView,
     GetFieldsAPIView,
+    FormSoftDeleteView,
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     ),
     path("form/", FormListAPIView.as_view(), name="form-list"),
     path("form/create/", FormListCreateUpdateView.as_view(), name="form-create"),
+    path("form/soft-delete/<int:form_id>/",FormSoftDeleteView.as_view(), name="form-soft-delete"),
 ]
