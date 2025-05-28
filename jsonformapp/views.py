@@ -107,7 +107,7 @@ class FormSoftDeleteView(APIView):
             )
         },
     )
-    def delete(self,form_id):
+    def delete(self,request, form_id, *args, **kwargs):
         if not form_id:
             return Response({"error": "Form ID is required."}, status=status.HTTP_400_BAD_REQUEST)
         try:
