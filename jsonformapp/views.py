@@ -96,12 +96,22 @@ class FormListCreateUpdateView(APIView):
     
 
 class FormSoftDeleteView(APIView):
-    @swagger_auto_schema()
+    @swagger_auto_schema(
+            operation_description="Delete Form from db",
+        responses={
+            200: openapi.Response(
+                description="A Form got deleted.",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                ),
+            )
+        },
+    )
     def delete(self,form_id):
         if not form_id:
             return Response({"error": "Form ID is required."}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            form = Form.objects.get(id=form_id)
+            form = Form.objects.get(id = form_id)
             form.is_deleted = True
             form.save()
             return Response({"message": "Form soft-deleted successfully."}, status=status.HTTP_200_OK)
