@@ -36,10 +36,10 @@ class GetTablesAPIView(APIView):
 
 class GetFieldsAPIView(APIView):
     @swagger_auto_schema(
-        operation_description="Fetch all fields from a specific table in the database",
+        operation_description="Fetch all fields and metadata from a specific table in the database",
         responses={
             200: openapi.Response(
-                description="A list of fields in the specified table",
+                description="A list of fields and metadata in the specified table",
                 schema=openapi.Schema(
                     type=openapi.TYPE_OBJECT,
                     properties={
@@ -56,6 +56,23 @@ class GetFieldsAPIView(APIView):
                                         type=openapi.TYPE_STRING,
                                         description="Data type of the field",
                                     ),
+                                    "nullable": openapi.Schema(
+                                        type=openapi.TYPE_STRING,
+                                        description="Is field nullable ('YES'/'NO')",
+                                    ),
+                                    "key": openapi.Schema(
+                                        type=openapi.TYPE_STRING,
+                                        description="Key type ('PRI', 'MUL', '')",
+                                    ),
+                                    "default": openapi.Schema(
+                                        type=openapi.TYPE_STRING,
+                                        nullable=True,
+                                        description="Default value",
+                                    ),
+                                    "extra": openapi.Schema(
+                                        type=openapi.TYPE_STRING,
+                                        description="Extra information",
+                                    ),
                                 },
                             ),
                         )
@@ -69,7 +86,15 @@ class GetFieldsAPIView(APIView):
             with connection.cursor() as cursor:
                 cursor.execute(f"DESCRIBE {table_name}")
                 fields = [
-                    {"name": field[0], "type": field[1]} for field in cursor.fetchall()
+                    {
+                        "name": field[0],
+                        "type": field[1],
+                        "nullable": field[2],
+                        "key": field[3],
+                        "default": field[4],
+                        "extra": field[5],
+                    }
+                    for field in cursor.fetchall()
                 ]
 
             return Response({"fields": fields}, status=status.HTTP_200_OK)
@@ -93,11 +118,11 @@ class FormListCreateUpdateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 
 class FormSoftDeleteView(APIView):
     @swagger_auto_schema(
-            operation_description="Delete Form from db",
+        operation_description="Delete Form from db",
         responses={
             200: openapi.Response(
                 description="A Form got deleted.",
@@ -107,14 +132,20 @@ class FormSoftDeleteView(APIView):
             )
         },
     )
-    def delete(self,request, form_id, *args, **kwargs):
+    def delete(self, request, form_id, *args, **kwargs):
         if not form_id:
-            return Response({"error": "Form ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Form ID is required."}, status=status.HTTP_400_BAD_REQUEST
+            )
         try:
-            form = Form.objects.get(id = form_id)
+            form = Form.objects.get(id=form_id)
             form.is_deleted = True
             form.save()
-            return Response({"message": "Form soft-deleted successfully."}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "Form soft-deleted successfully."},
+                status=status.HTTP_200_OK,
+            )
         except Form.DoesNotExist:
-            return Response({"error": "Form not found."}, status=status.HTTP_404_NOT_FOUND)
-
+            return Response(
+                {"error": "Form not found."}, status=status.HTTP_404_NOT_FOUND
+            )
