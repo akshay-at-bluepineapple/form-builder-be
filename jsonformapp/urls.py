@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import (
     FormListAPIView,
-    FormListCreateUpdateView,
+    FormListCreateView,
+    FormListUpdateView,
     GetTablesAPIView,
     GetFieldsAPIView,
     FormSoftDeleteView,
@@ -13,6 +14,15 @@ urlpatterns = [
         "tables/<str:table_name>/fields/", GetFieldsAPIView.as_view(), name="get-fields"
     ),
     path("form/", FormListAPIView.as_view(), name="form-list"),
-    path("form/create/", FormListCreateUpdateView.as_view(), name="form-create"),
-    path("form/soft-delete/<int:form_id>/",FormSoftDeleteView.as_view(), name="form-soft-delete"),
+    path("form/create/", FormListCreateView.as_view(), name="form-create"),
+    path(
+        "form/create-update/<int:form_id>/",
+        FormListUpdateView.as_view(),
+        name="form-create-update",
+    ),
+    path(
+        "form/soft-delete/<int:form_id>/",
+        FormSoftDeleteView.as_view(),
+        name="form-soft-delete",
+    ),
 ]

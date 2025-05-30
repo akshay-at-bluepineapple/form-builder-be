@@ -1,7 +1,7 @@
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from .models import Form
-from .serializers import FormSerializer, FormCreateUpdateSerializer
+from .serializers import FormSerializer, FormCreateSerializer, FormUpdateSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
@@ -106,14 +106,31 @@ class GetFieldsAPIView(APIView):
 
 
 class FormListAPIView(ListAPIView):
-    queryset = Form.objects.all()
+    queryset = Form.objects.filter(is_deleted=False)
     serializer_class = FormSerializer
 
 
-class FormListCreateUpdateView(APIView):
-    @swagger_auto_schema(request_body=FormCreateUpdateSerializer)
+class FormListCreateView(APIView):
+    @swagger_auto_schema(request_body=FormCreateSerializer)
     def post(self, request):
-        serializer = FormCreateUpdateSerializer(data=request.data)
+        serializer = FormCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FormListUpdateView(APIView):
+    @swagger_auto_schema(request_body=FormUpdateSerializer)
+    def put(self, request, form_id):
+        try:
+            form_instance = Form.objects.get(pk=form_id)
+            print("form instance", form_instance)
+        except Form.DoesNotExist:
+            return Response(
+                {"error": "Form not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = FormUpdateSerializer(form_instance, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -132,7 +149,7 @@ class FormSoftDeleteView(APIView):
             )
         },
     )
-    def delete(self,request, form_id, *args, **kwargs):
+    def delete(self, request, form_id, *args, **kwargs):
         if not form_id:
             return Response(
                 {"error": "Form ID is required."}, status=status.HTTP_400_BAD_REQUEST
