@@ -31,7 +31,23 @@ class GetTablesAPIView(APIView):
         with connection.cursor() as cursor:
             cursor.execute("SHOW TABLES")
             tables = [table[0] for table in cursor.fetchall()]
-        return Response({"tables": tables}, status=status.HTTP_200_OK)
+
+        excluded_prefixes = [
+            "django_",
+            "auth_",
+            "admin_",
+            "contenttypes",
+            "sessions",
+            "jsonformapp_",
+        ]
+
+        filtered_tables = [
+            table
+            for table in tables
+            if not any(table.startswith(prefix) for prefix in excluded_prefixes)
+        ]
+
+        return Response({"tables": filtered_tables}, status=status.HTTP_200_OK)
 
 
 class GetFieldsAPIView(APIView):
@@ -89,10 +105,9 @@ class GetFieldsAPIView(APIView):
                     {
                         "name": field[0],
                         "type": field[1],
-                        "nullable": field[2],
+                        "required": field[2],
                         "key": field[3],
                         "default": field[4],
-                        "extra": field[5],
                     }
                     for field in cursor.fetchall()
                 ]
