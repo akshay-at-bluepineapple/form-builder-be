@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     "jsonformapp",
     "rest_framework",
     "drf_yasg",
+    "product",
+    "wording",
 ]
 
 MIDDLEWARE = [
