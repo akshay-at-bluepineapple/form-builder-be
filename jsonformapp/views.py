@@ -110,6 +110,7 @@ class GetFieldsAPIView(APIView):
                         "default": field[4],
                     }
                     for field in cursor.fetchall()
+                    if field[0].lower() != "id"
                 ]
 
             return Response({"fields": fields}, status=status.HTTP_200_OK)
