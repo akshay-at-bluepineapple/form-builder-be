@@ -6,6 +6,9 @@ from .views import (
     GetTablesAPIView,
     GetFieldsAPIView,
     FormSoftDeleteView,
+    DynamicTableRecordView,
+    GetEmptyTablesAPIView,
+    GetTableDataAPIView,
 )
 
 urlpatterns = [
@@ -24,5 +27,16 @@ urlpatterns = [
         "form/soft-delete/<int:form_id>/",
         FormSoftDeleteView.as_view(),
         name="form-soft-delete",
+    ),
+    path(
+        "form/field-values-submission/",
+        DynamicTableRecordView.as_view(),
+        name="form-field-values-submission",
+    ),
+    path("tables/empty/", GetEmptyTablesAPIView.as_view(), name="get-empty-tables"),
+    path(
+        "tables/<str:table_name>/data/",
+        GetTableDataAPIView.as_view(),
+        name="get-table-data",
     ),
 ]
