@@ -337,7 +337,7 @@ class GetEmptyTablesAPIView(APIView):
         with connection.cursor() as cursor:
             for table in user_tables:
                 try:
-                    cursor.execute(f'SELECT COUNT(*) FROM "{table}"')
+                    cursor.execute("SELECT COUNT(*) FROM `" + table + "`")
                     count = cursor.fetchone()[0]
                     if count == 0:
                         empty_tables.append(table)
